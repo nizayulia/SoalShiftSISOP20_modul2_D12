@@ -1,10 +1,8 @@
-#### Yulia Niza      - 05111840000043
-#### M. Samsu Dhuha  - 05111840000155
-#### Kelompok D12
 
-# SoalShiftSISOP20_modul2_D12
+Yulia Niza      - 05111840000043
+M. Samsu Dhuha  - 05111840000155
 
-
+Kelompok D12
 
 ## Soal 1
 Buatlah program C yang menyerupai crontab untuk menjalankan script bash dengan
@@ -96,6 +94,7 @@ Catatan :
 - Tidak boleh memakai function C mkdir() ataupun rename().
 - Gunakan exec dan fork
 - Direktori “.” dan “..” tidak termasuk
+
 ### Jawaban 
 ``` 
 #include <stdlib.h>
@@ -223,7 +222,95 @@ int main() {
   }
 }
 
+```
+### Penjelasan :
 
 ```
+int main() {
+  pid_t child_a, child_b, child_c, child_d, child_e, child_f;
+  int status;
+  if (child_a < 0) 
+  {
+    exit(EXIT_FAILURE); 
+  }
+
+  if (child_a == 0) 
+  {
+    char *mkd[] = {"mkdir", "/home/yulia/modul2/indomie", NULL};
+    execv("/bin/mkdir", mkd);
+  } 
+```
+Menginisiasi pid yang akan digunakan dan int status. Jika ```child_a < 0``` maka  gagal membuat proses baru, program akan berhenti. Child membuat directory baru dengan nama indomie.
+```
+else 
+  {
+    child_b = fork();
+    if (child_b < 0) 
+    {
+      exit(EXIT_FAILURE); 
+    }
+    if (child_b == 0)
+   	{	
+      while ((wait(&status)) > 0);
+      sleep(5);
+      char *argv[] = {"mkdir","/home/yulia/modul2/sedaap", NULL};
+      execv("/bin/mkdir", argv);
+    }
+    
+  ```
+ Membuat fork untuk melakukan proses baru yaitu membuat directory dengan nama 'sedaap' yang berjalan setelah 5 detik dari proses sebelumnya yang dibuat dengan menggunakan wait.
+
+```
+ else 
+    {
+      while ((wait(&status)) > 0);
+      child_c = fork();
+      if (child_c < 0) 
+      {
+        exit(EXIT_FAILURE); 
+      }
+      if(child_c == 0) 
+      {
+        char *unzip[]={"unzip", "/home/yulia/modul2/jpg.zip", NULL};
+     	  execv("/usr/bin/unzip",unzip);
+      }	  
+```
+Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”.
+```
+  else 
+      {
+        while ((wait(&status)) > 0);
+        DIR *d;
+        struct dirent *dir;
+        d = opendir("jpg");
+         if (d)
+        {
+          while ((dir = readdir(d)) != NULL)
+          {
+            child_d = fork ();
+            if (child_d < 0) 
+            {
+              exit(EXIT_FAILURE); 
+            }
+            if (child_d == 0)
+            {
+              char namafile[1000];
+              sprintf(namafile, "/home/yulia/modul2/jpg/%s", dir->d_name);
+              if (strcmp(dir->d_name, "..") == 0 || strcmp(dir->d_name, ".") == 0);
+              else if(dir->d_type == DT_REG)
+              {
+                char* move[] = {"mv", namafile, "/home/yulia/modul2/sedaap/", NULL};
+                execv("/bin/mv", move);
+              }
+```
+Untuk mengetahui formatisi dari sebuah direktori, kita menggunakan DIR.
+
+
+
+
+Referensi : 
+http://man7.org/linux/man-pages/man3/readdir.3.html
+https://www.mahirkoding.com/operasi-file-dalam-bahasa-c/
+https://stackoverflow.com/questions/26357792/return-a-list-of-files-in-a-folder-in-c
 
 
