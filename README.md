@@ -230,6 +230,7 @@ int main() {
 ```
 ### Penjelasan :
 
+#### a. Membuat direktori indomie, lalu 5 detik kemudian membuat direktori Sedaap
 ```
 int main() {
   pid_t child_a, child_b, child_c, child_d, child_e, child_f;
@@ -264,6 +265,10 @@ else
     
   ```
  Membuat fork untuk melakukan proses baru yaitu membuat directory dengan nama 'sedaap' yang berjalan setelah 5 detik dari proses sebelumnya yang dibuat dengan menggunakan wait.
+ 
+ 
+ 
+ #### b. Meng-ekstrak file jpg.zip di direktori “/home/yulia/modul2/”
 
 ```
  else 
@@ -280,15 +285,19 @@ else
      	  execv("/usr/bin/unzip",unzip);
       }	  
 ```
-Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”.
+Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di direktori “/home/yulia/modul2/”.
+
+
+#### c. hasil dari ekstrakan tersebut dipindahkan sesuai dengan pengelompokan, semua file harus dipindahkan ke “/home/yulia/modul2/sedaap/” dan semua direktori harus dipindahkan ke “/home/yulia/modul2/indomie/”
+
 ```
-  else 
+   else 
       {
         while ((wait(&status)) > 0);
         DIR *d;
-        struct dirent *dir;
+        struct dirent *dir; 
         d = opendir("jpg");
-         if (d)
+        if (d)
         {
           while ((dir = readdir(d)) != NULL)
           {
@@ -299,8 +308,13 @@ Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di dire
             }
             if (child_d == 0)
             {
+              struct stat info;
               char namafile[1000];
               sprintf(namafile, "/home/yulia/modul2/jpg/%s", dir->d_name);
+              if (stat(namafile, &info)) 
+              {
+                exit (EXIT_FAILURE);
+              }
               if (strcmp(dir->d_name, "..") == 0 || strcmp(dir->d_name, ".") == 0);
               else if(dir->d_type == DT_REG)
               {
@@ -308,11 +322,56 @@ Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di dire
                 execv("/bin/mv", move);
               }
 ```
-Untuk mengetahui formatisi dari sebuah direktori, kita menggunakan DIR.
+Untuk mengetahui format isi dari sebuah direktori, kita menggunakan DIR. Lalu membuka dan membaca file dalam folder "jpg" selama folder tidak kosong. Membuat fork baru untuk melakukan proses pemindahan file dari "/home/yulia/modul2/jpg” ke "/home/yulia/modul2/sedaap”. 
 
 
+```
+else 
+              {
+                child_e = fork ();
+                if (child_e < 0) 
+                {
+                  exit(EXIT_FAILURE); 
+                }
+                if(child_e == 0)
+                {
+                  char* move[] = {"mv", namafile, "/home/yulia/modul2/indomie/", NULL};
+                  execv("/bin/mv", move);
+                }
+```
+Membuat fork baru untuk melakukan proses pemindahan folder dari "/home/yulia/modul2/jpg” ke "/home/yulia/modul2/indomie”.
 
 
+#### d. Membuat dua file kosong pada setiap folder yang berada dalam "/home/yulia/modul2/indomie” dengan nama coba1.txt dan coba2.txt yang terbuat 3 detik setelahnya.
+
+```
+else 
+                {
+                  while ((wait(&status)) > 0);
+                  child_f = fork ();
+                  if (child_f < 0) 
+                  {
+                    exit(EXIT_FAILURE); 
+                  }
+                  if(child_f == 0)
+                  {
+                    char pilihfolder[10000];
+                    sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba1.txt", dir->d_name);
+                    char* file1[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file1);
+                    
+                  }
+                  else 
+                  {
+                    while ((wait(&status)) > 0);
+                    sleep(3);
+                    char pilihfolder[10000];
+                    sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba2.txt", dir->d_name);
+                    char* file2[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file2);
+```
+
+Membuat fork baru untuk melakukan proses pembuatan file coba1.txt dan coba2.txt.  
 
 
 
