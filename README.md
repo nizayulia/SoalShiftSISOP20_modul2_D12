@@ -106,15 +106,16 @@ Catatan :
 #include <stdio.h>
 #include <string.h>
 
+
 int main() {
-  pid_t child_a, child_b, child_c, child_d, child_e, child_f;
+  pid_t child_a, child_b, child_c, child_d, child_e, child_f, child_g;
   int status;
   child_a = fork();
   if (child_a < 0) 
   {
     exit(EXIT_FAILURE); 
   }
-
+  
   if (child_a == 0) 
   {
     char *mkd[] = {"mkdir", "/home/yulia/modul2/indomie", NULL};
@@ -151,7 +152,7 @@ int main() {
       {
         while ((wait(&status)) > 0);
         DIR *d;
-        struct dirent *dir;
+        struct dirent *dir; 
         d = opendir("jpg");
         if (d)
         {
@@ -164,15 +165,20 @@ int main() {
             }
             if (child_d == 0)
             {
+              struct stat info;
               char namafile[1000];
               sprintf(namafile, "/home/yulia/modul2/jpg/%s", dir->d_name);
+              if (stat(namafile, &info)) 
+              {
+                exit (EXIT_FAILURE);
+              }
               if (strcmp(dir->d_name, "..") == 0 || strcmp(dir->d_name, ".") == 0);
               else if(dir->d_type == DT_REG)
               {
                 char* move[] = {"mv", namafile, "/home/yulia/modul2/sedaap/", NULL};
                 execv("/bin/mv", move);
               }
-              else if (dir->d_type == DT_DIR)
+              else 
               {
                 child_e = fork ();
                 if (child_e < 0) 
@@ -181,8 +187,8 @@ int main() {
                 }
                 if(child_e == 0)
                 {
-                char* move[] = {"mv", namafile, "/home/yulia/modul2/indomie/", NULL};
-                execv("/bin/mv", move);
+                  char* move[] = {"mv", namafile, "/home/yulia/modul2/indomie/", NULL};
+                  execv("/bin/mv", move);
                 }
                 else 
                 {
@@ -196,9 +202,8 @@ int main() {
                   {
                     char pilihfolder[10000];
                     sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba1.txt", dir->d_name);
-                    FILE *tujuan;
-                    tujuan = fopen(pilihfolder, "w");
-                    fclose(tujuan);
+                    char* file1[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file1);
                     
                   }
                   else 
@@ -207,12 +212,11 @@ int main() {
                     sleep(3);
                     char pilihfolder[10000];
                     sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba2.txt", dir->d_name);
-                    FILE *tujuan;
-                    tujuan = fopen(pilihfolder, "w");
-                    fclose(tujuan);
+                    char* file2[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file2);
                   }
                 }
-             }
+              }
             }
           }
           closedir(d);
@@ -221,6 +225,7 @@ int main() {
     }
   }
 }
+
 
 ```
 ### Penjelasan :
@@ -304,6 +309,9 @@ Membuat fork untuk melakukan proses baru yaitu meng-ekstrak file jpg.zip di dire
               }
 ```
 Untuk mengetahui formatisi dari sebuah direktori, kita menggunakan DIR.
+
+
+
 
 
 
