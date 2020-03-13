@@ -28,6 +28,7 @@ detik pada jam 07:34.
 Shisoppu mantappu! itulah yang selalu dikatakan Kiwa setiap hari karena sekarang dia
 merasa sudah jago materi sisop. Karena merasa jago, suatu hari Kiwa iseng membuat
 sebuah program.
+
 a. Pertama-tama, Kiwa membuat sebuah folder khusus, di dalamnya dia membuat
 sebuah program C yang per 30 detik membuat sebuah folder dengan nama
 timestamp [YYYY-mm-dd_HH:ii:ss].
@@ -371,7 +372,7 @@ else
                     execv("/usr/bin/touch", file2);
 ```
 
-Membuat fork baru untuk melakukan proses pembuatan file coba1.txt dan coba2.txt.  
+Membuat fork baru untuk melakukan proses pembuatan file coba1.txt dan coba2.txt.   
 
 
 
