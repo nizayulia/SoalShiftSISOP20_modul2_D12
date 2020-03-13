@@ -97,9 +97,8 @@ int main() {
                   {
                     char pilihfolder[10000];
                     sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba1.txt", dir->d_name);
-                    FILE *tujuan;
-                    tujuan = fopen(pilihfolder, "w");
-                    fclose(tujuan);
+                    char* file1[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file1);
                     
                   }
                   else 
@@ -108,9 +107,8 @@ int main() {
                     sleep(3);
                     char pilihfolder[10000];
                     sprintf(pilihfolder, "/home/yulia/modul2/indomie/%s/coba2.txt", dir->d_name);
-                    FILE *tujuan;
-                    tujuan = fopen(pilihfolder, "w");
-                    fclose(tujuan);
+                    char* file2[] = {"touch", pilihfolder, NULL};
+                    execv("/usr/bin/touch", file2);
                   }
                 }
              }
