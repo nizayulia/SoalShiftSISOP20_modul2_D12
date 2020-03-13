@@ -1,148 +1,125 @@
-import numpy as np
-import pygame
-import sys
-import math
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
 
-BLUE = (0,0,255)
-BLACK = (0,0,0)
-RED = (255,0,0)
-YELLOW = (255,255,0)
+int main(int argc, char** argv)
+{
+int detik = atoi(argv[1]), menit = atoi(argv[2]), jam = atoi(argv[3]);
+int cek1 = 0, cek2 = 0, cek3 = 0, cek4 = 0, length;
+char bintang[] = "*";
+if (argc == 5) {
+// cek argumen 1
+if (strcmp (argv[1],bintang) == 0) {
+cek1 = 1;
+} if (isalpha(*argv[1]) != 0) {
+detik = -1;
+} else if (isdigit(*argv[1]) != 0) {
+detik = detik;
+}
+// cek argumen 2
+if (strcmp (argv[2],bintang) == 0) {
+cek2 = 1;
+} if (isalpha(*argv[2]) != 0) {
+menit = -1;
+} else if (isdigit(*argv[2]) != 0) {
+menit = menit;
+}
+// cek argumen 3
+if (strcmp (argv[3],bintang) == 0) {
+cek3 = 1;
+} if (isalpha(*argv[3]) != 0) {
+jam = -1;
+} else if (isdigit(*argv[3]) != 0) {
+jam = jam;
+}
+// cek argumen 4
+length = strlen(argv[4]);
+if (isalpha(*argv[4]) == 0) {
+jam = -1;
+} else if (argv[4][length-1] == 'h' && argv[4][length-2] == 's' && argv[4][length-3] == '.') {
+cek4 = 1;
+} else {
+printf("Argumen Tidak Valid\n");
+exit(EXIT_FAILURE);
+}
+// cek argumen sesuai yang diminta
+if ((detik > 59 || detik < 0) && cek1 == 0) {
+printf("Argumen Tidak Valid\n");
+exit(EXIT_FAILURE);
+} else if ((menit > 59 || menit < 0) && cek2 == 0) {
+printf("Argumen Tidak Valid\n");
+exit(EXIT_FAILURE);
+} else if ((jam > 23 || jam < 0) && cek3 == 0) {
+printf("Argumen Tidak Valid\n");
+exit(EXIT_FAILURE);
+}
+// copas contoh daemon di github waktu seslab
+pid_t pid, sid;
 
-ROW_COUNT = 6
-COLUMN_COUNT = 7
+pid = fork();
 
-def create_board():
-	board = np.zeros((ROW_COUNT,COLUMN_COUNT))
-	return board
+if (pid < 0) {
+exit(EXIT_FAILURE);
+}
+if (pid > 0) {
+exit(EXIT_SUCCESS);
+}
 
-def drop_piece(board, row, col, piece):
-	board[row][col] = piece
+umask(0);
 
-def is_valid_location(board, col):
-	return board[ROW_COUNT-1][col] == 0
+sid = setsid();
+if (sid < 0) {
+exit(EXIT_FAILURE);
+}
+if ((chdir("/")) < 0) {
+exit(EXIT_FAILURE);
+}
 
-def get_next_open_row(board, col):
-	for r in range(ROW_COUNT):
-		if board[r][col] == 0:
-			return r
+close(STDIN_FILENO);
+close(STDOUT_FILENO);
+close(STDERR_FILENO);
+while (1) {
+// manggil struct di library "time.h" dengan fungsi localtime()
+// referensi https://www.tutorialspoint.com/c_standard_library/c_function_localtime.htm
+time_t rawtime;
+struct tm *info;
+time( &rawtime );
+info = localtime( &rawtime );
 
-def print_board(board):
-	print(np.flip(board, 0))
+// sesuaiin localtime dengan inputan
+if ((info->tm_sec == detik || cek1 == 1) && (info->tm_min == menit || cek2 == 1)
+&& (info->tm_hour == jam || cek3 == 1)){
 
-def winning_move(board, piece):
-	# Check horizontal locations for win
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT):
-			if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
-				return True
+pid_t child_id;
+int status;
 
-	# Check vertical locations for win
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
-				return True
+child_id = fork();
 
-	# Check positively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
-				return True
+if (child_id < 0) {
+exit(EXIT_FAILURE);
+}
+if (child_id == 0) {
+char *exe[] = {"bash", argv[4], NULL};
+execv("/bin/bash", exe);
+} else {
+// this is parent
+while ((wait(&status)) > 0);
+}
+sleep(1);
+}
+}
+} else {
+printf("Argumen Tidak Valid\n");
+exit(EXIT_FAILURE);
+}
 
-	# Check negatively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(3, ROW_COUNT):
-			if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-				return True
-
-def draw_board(board):
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT):
-			pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
-			pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
-	
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT):		
-			if board[r][c] == 1:
-				pygame.draw.circle(screen, RED, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
-			elif board[r][c] == 2: 
-				pygame.draw.circle(screen, YELLOW, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
-	pygame.display.update()
-
-
-board = create_board()
-print_board(board)
-game_over = False
-turn = 0
-
-pygame.init()
-
-SQUARESIZE = 100
-
-width = COLUMN_COUNT * SQUARESIZE
-height = (ROW_COUNT+1) * SQUARESIZE
-
-size = (width, height)
-
-RADIUS = int(SQUARESIZE/2 - 5)
-
-screen = pygame.display.set_mode(size)
-draw_board(board)
-pygame.display.update()
-
-myfont = pygame.font.SysFont("monospace", 75)
-
-while not game_over:
-
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit()
-
-		if event.type == pygame.MOUSEMOTION:
-			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
-			posx = event.pos[0]
-			if turn == 0:
-				pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
-			else: 
-				pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
-		pygame.display.update()
-
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
-			#print(event.pos)
-			# Ask for Player 1 Input
-			if turn == 0:
-				posx = event.pos[0]
-				col = int(math.floor(posx/SQUARESIZE))
-
-				if is_valid_location(board, col):
-					row = get_next_open_row(board, col)
-					drop_piece(board, row, col, 1)
-
-					if winning_move(board, 1):
-						label = myfont.render("Player 1 wins!!", 1, RED)
-						screen.blit(label, (40,10))
-						game_over = True
-
-
-			# # Ask for Player 2 Input
-			else:				
-				posx = event.pos[0]
-				col = int(math.floor(posx/SQUARESIZE))
-
-				if is_valid_location(board, col):
-					row = get_next_open_row(board, col)
-					drop_piece(board, row, col, 2)
-
-					if winning_move(board, 2):
-						label = myfont.render("Player 2 wins!!", 1, YELLOW)
-						screen.blit(label, (40,10))
-						game_over = True
-
-			print_board(board)
-			draw_board(board)
-
-			turn += 1
-			turn = turn % 2
-
-			if game_over:
-				pygame.time.wait(3000)
+return 0;
+}
