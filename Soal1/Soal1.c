@@ -113,8 +113,8 @@ execv("/bin/bash", exe);
 // this is parent
 while ((wait(&status)) > 0);
 }
-sleep(1);
 }
+  sleep(1);
 }
 } else {
 printf("Argumen Tidak Valid\n");
