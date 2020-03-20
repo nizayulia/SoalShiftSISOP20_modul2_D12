@@ -316,10 +316,10 @@ sebuah program.
 a. Pertama-tama, Kiwa membuat sebuah folder khusus, di dalamnya dia membuat
 sebuah program C yang per 30 detik membuat sebuah folder dengan nama
 timestamp [YYYY-mm-dd_HH:ii:ss].
+
 b. Tiap-tiap folder lalu diisi dengan 20 gambar yang di download dari
 https://picsum.photos/, dimana tiap gambar di download setiap 5 detik. Tiap
 gambar berbentuk persegi dengan ukuran (t%1000)+100 piksel dimana t adalah
-
 detik Epoch Unix. Gambar tersebut diberi nama dengan format timestamp [YYYY-
 mm-dd_HH:ii:ss].
 
@@ -351,8 +351,88 @@ tertentu
 - Epoch Unix bisa didapatkan dari time()
 
 ### Jawaban :
-### Penjelasan :
 
+### Penjelasan :
+#### a. Membuat folder per 30 detik dengan nama timestamp [YYYY-mm-dd_HH:ii:ss].
+```
+while (1) 
+  {
+    child_a = fork();
+    if (child_a < 0) 
+    {
+      exit(EXIT_FAILURE);
+    }
+    if (child_a == 0)
+    { 
+      time_t waktu = time(NULL);
+      struct tm* now = localtime(&waktu);
+      char newfolder[50];
+      strftime(newfolder, sizeof(newfolder), "%Y-%m-%d_%H:%M:%S", now);
+
+      child_b = fork ();
+      if (child_b == 0)
+      {
+        char *mkd[] = {"mkdir", newfolder, NULL};
+        execv("/bin/mkdir", mkd);
+      }
+```
+Membuat nama file sesuai dengan timestamp [YYYY-mm-dd_HH:ii:ss] dengan menggunakan ```sturct tm* now = localtime(&waktu)``` untuk mengambil argument tipe data time_t waktu
+
+Membuat child baru untuk menjalankan program untuk membuat folder menggunakan execv() dengan perintah ```mkdir``` 
+
+Agar folder dapat terbuat setiap 30 detik, ada perintah sleep(30) pada akhir kodingan.
+
+
+#### b. Mengisi folder dengan 20 gambar yang di download di https://picsum.photos/ dimana tiap gambar di download setiap 5 detik. Tiap gambar berbentuk persegi dengan ukuran (t%1000)+100 piksel dimana t adalah detik Epoch Unix. Gambar tersebut diberi nama dengan format timestamp [YYYY- mm-dd_HH:ii:ss].
+```
+else 
+      {
+        while ((wait(&status)) > 0);
+        for (i = 0; i < 20; i++)
+        {
+          child_c = fork();
+          if (child_c == 0)
+          {
+            t = (int)time(NULL);
+            t = (t % 1000) + 100;
+            chdir(newfolder);
+            time_t waktu_file = time(NULL);
+            struct tm* file_now = localtime(&waktu_file);
+        
+            char isi[100];
+            sprintf(isi, "https://picsum.photos/%d", t);
+
+            char newfile[50];
+            strftime(newfile, sizeof(newfile), "%Y-%m-%d_%H:%M:%S", file_now);
+            char *mkfl[] = {"wget", isi, "-O", newfile, NULL};
+            execv("/usr/bin/wget", mkfl);
+          }
+          sleep(5);
+```
+Menggunakan loop untuk mengiterasi sebanyak 20 kali gambar yang akan di download.
+
+Membuat format nama file dengan timestamp [YYYY- mm-dd_HH:ii:ss].
+
+mendownload gambar dari https://picsum.photos/ dengan ukuran (t % 1000 ) + 100 pixel, dimana t adalah Epoch Unix yang disimpan pada 'isi'.
+
+Menggunakan perintah wget -O untuk mendownload gambar dari 'isi' dan menyimpan di file 'newfile' dengan format nama sesuai timestamp yang telah dibuat.
+
+Agar file dapat terbuat setiap 5 detik, digunakan perintah 'sleep(5)'
+
+#### c. folder akan di zip dan folder akan di delete(sehingga hanya menyisakan .zip)
+```
+}
+        while ((wait(&status)) > 0);
+        char dizip[100];
+        sprintf(dizip, "%s.zip", newfolder);
+        char *zip[] = {"zip", "-rm", dizip, newfolder, NULL};
+        execv("/usr/bin/zip", zip);
+```
+Menggunakan perintah snprintf() memformat dan menyimpan nama dari zip ke array dizip
+Melakukan perintah zip folder yang sudah terisi 20 file dan meremove folder tersebut dengan execv()
+
+
+ 
 ## Soal 3
 Jaya adalah seorang programmer handal mahasiswa informatika. Suatu hari dia
 memperoleh tugas yang banyak dan berbeda tetapi harus dikerjakan secara bersamaan
