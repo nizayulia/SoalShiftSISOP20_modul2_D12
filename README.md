@@ -429,6 +429,7 @@ Agar file dapat terbuat setiap 5 detik, digunakan perintah 'sleep(5)'
         execv("/usr/bin/zip", zip);
 ```
 Menggunakan perintah snprintf() memformat dan menyimpan nama dari zip ke array dizip
+
 Melakukan perintah zip folder yang sudah terisi 20 file dan meremove folder tersebut dengan execv()
 
 
