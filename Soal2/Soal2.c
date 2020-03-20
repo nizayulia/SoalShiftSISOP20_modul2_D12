@@ -79,7 +79,7 @@ int main(int argc, char **argv)
             char *mkfl[] = {"wget", isi, "-O", newfile, NULL};
             execv("/usr/bin/wget", mkfl);
           }
-          sleep(1);
+          sleep(5);
         }
         while ((wait(&status)) > 0);
         char dizip[100];
